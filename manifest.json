@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "p5 sketch overlay",
+  "description": "This extensions demonstrates how to overlay a canvas on a page using p5.",
+  "version": "1.0",
+  "icons": {
+    "16": "burroughs.png"
+  },
+  "action": {
+        "default_title": "Chrome Addon v3 Starter"
+    },
+  "permissions": ["activeTab", "scripting", "tabs"],
+  "host_permissions": [
+    "*://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
