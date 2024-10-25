@@ -25,7 +25,7 @@ var sketch = function(p5) {
       
       if (p5.key == 's'){
         new_shape = true;
-        this.t = p5.beginShape(p5.POINTS);
+        this.shape = []
 
         window.addEventListener('click', event => {
           if (event.target.matches('video')) {
@@ -37,14 +37,27 @@ var sketch = function(p5) {
 
       else if (p5.key == 'e'){
         new_shape = false;
-        p5.endShape();
-        n_gon_array.push(this.t);
+        n_gon_array.push(this.shape);
+        console.log(n_gon_array);
       }
     }
 
     p5.mousePressed = function (){
       if (new_shape){
+        p5.beginShape();
         p5.vertex(p5.mouseX, p5.mouseY);
+        this.shape.push([p5.mouseX, p5.mouseY]);
+        p5.endShape(p5.CLOSE);
+        if (this.shape.length > 1){
+          
+          p5.beginShape();
+          prev_point_xy = this.shape[this.shape.length - 2];
+          x = prev_point_xy[0];
+          y = prev_point_xy[1];
+          console.log(x, y, p5.mouseX, p5.mouseY);
+          p5.line(x, y, p5.mouseX, p5.mouseY);
+          p5.endShape(p5.CLOSE);
+        }
       }
     }
   
