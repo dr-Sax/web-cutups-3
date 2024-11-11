@@ -9,11 +9,12 @@
   "action": {
         "default_title": "Chrome Addon v3 Starter"
     },
-  "permissions": ["activeTab", "scripting", "tabs"],
+  "permissions": ["activeTab", "scripting", "tabs", "webNavigation"],
   "host_permissions": [
     "*://*/*"
   ],
   "background": {
     "service_worker": "background.js"
   }
+
 }

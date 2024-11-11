@@ -56,17 +56,18 @@ var sketch = function(p5) {
         new_shape = true;
         this.shape = [];
         n_gon_array.push([]);
-
         window.addEventListener('click', event => {
           if (event.target.matches('video')) {
             event.stopPropagation();
           }
         }, true);
+     
 
       }
 
       else if (p5.key == 'e'){
         new_shape = false;
+
       }
 
       else if (p5.keyIsDown(p5.CONTROL) && p5.key == 'c'){
@@ -147,4 +148,20 @@ var sketch = function(p5) {
   
   // The above function closure is passed into a p5 object constructor
   // this starts the sketch.
-  var myp5 = new p5(sketch);
+
+  let myp5;
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'b') {
+      // Code to run when 'b' key is pressed
+      console.log('B key pressed!'); 
+      myp5 = new p5(sketch);
+    }
+
+    else if (event.key === 'a') {
+      // Code to run when 'b' key is pressed
+      console.log(myp5.noCanvas());
+    }
+    
+  });
+//
+
