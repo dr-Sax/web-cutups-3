@@ -5,6 +5,7 @@ import {CSS3DRenderer} from "./CSS3DRenderer.js";
 
 let camera, scene, renderer;
 let controls;
+let selected_frames;
 
 //https://www.youtube.com/watch?v=KRm_GICiPIQ
 
@@ -55,9 +56,7 @@ function Element(x, y, z, rx, ry, rz, width, height, src, clip_path) {
 	object.rotation.y = ry;
 	object.rotation.x = rx
 	object.rotation.x = rz
-	object.src = src;
-	
-	
+	object.src = src;	
 	
 	return object;
 
@@ -70,7 +69,8 @@ function init() {
 
 	const container = document.getElementById( 'container' );
 	camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
-	camera.position.set( 500, 350, 750 );
+	camera.position.set( 0, 0, 100);
+	selected_frames = [];
 
 	scene = new THREE.Scene();
 
@@ -87,29 +87,89 @@ function init() {
 
 	scene.add( group );
 
-	controls = new TrackballControls( camera, renderer.domElement );
-	controls.rotateSpeed = 4;
-
 	window.addEventListener( 'resize', onWindowResize );
 
 	window.addEventListener('keydown', onCtrlV);
+	window.addEventListener('keydown', translate);
+	window.addEventListener('keyup', stop_translate);
 
 	// Block iframe events when dragging camera
 
 	const blocker = document.getElementById( 'blocker' );
 	blocker.style.display = 'none';
 
-	controls.addEventListener( 'start', function () {
 
-		blocker.style.display = '';
 
-	} );
+	let keysPressed = {};
+	let translate_scale = 10;
+	let rotate_scale = 1;
 
-	controls.addEventListener( 'end', function () {
+	async function translate(event){
+		keysPressed[event.key] = true;
+		// rotation:
+		if (keysPressed['r'] && keysPressed['x'] && keysPressed["ArrowRight"]){
+			selected_frame_modifier(translate_scale, 0, 0, rotate_scale, 0, 0);
+		}
+		else if (keysPressed['r'] && keysPressed['x'] && keysPressed["ArrowLeft"]){
+			selected_frame_modifier(-translate_scale, 0, 0, -rotate_scale, 0, 0);
+		}
+		else if (keysPressed['r'] && keysPressed['y'] && keysPressed["ArrowRight"]){
+			selected_frame_modifier(0, translate_scale, 0, 0, rotate_scale, 0);
+		}
+		else if (keysPressed['r'] && keysPressed['y'] && keysPressed["ArrowLeft"]){
+			selected_frame_modifier(0, -translate_scale, 0, 0, -rotate_scale, 0);
+		}
+		else if (keysPressed['r'] && keysPressed['z'] && keysPressed["ArrowRight"]){
+			selected_frame_modifier(0, 0, translate_scale, 0, 0, rotate_scale);
+		}
+		else if (keysPressed['r'] && keysPressed['z'] && keysPressed["ArrowLeft"]){
+			selected_frame_modifier(0, 0, -translate_scale, 0, 0, -rotate_scale);
+		}
 
-		blocker.style.display = 'none';
+		// translation:
+		else if (keysPressed['x'] && keysPressed["ArrowRight"]){
+			selected_frame_modifier(translate_scale, 0, 0, 0, 0, 0);
+		}
+		else if (keysPressed['x'] && keysPressed["ArrowLeft"]){
+			selected_frame_modifier(-translate_scale, 0, 0, 0, 0, 0);
+		}
+		else if (keysPressed['y'] && keysPressed["ArrowRight"]){
+			selected_frame_modifier(0, translate_scale, 0, 0, 0, 0);
+		}
+		else if (keysPressed['y'] && keysPressed["ArrowLeft"]){
+			selected_frame_modifier(0, -translate_scale, 0, 0, 0, 0);
+		}
 
-	} );
+		// scaling:
+		else if (keysPressed['s'] && keysPressed["ArrowRight"]){
+			selected_frame_modifier(0, 0, translate_scale, 0, 0, 0);
+		}
+		else if (keysPressed['s'] && keysPressed["ArrowLeft"]){
+			selected_frame_modifier(0, 0, -translate_scale, 0, 0, 0);
+		}
+		
+		
+
+	}
+
+	// helper function to translate
+	function selected_frame_modifier(x, y, scale, rx, ry, rz){
+		for (let i = 0; i < selected_frames.length; i++){
+			let x0 = selected_frames[i].position.x;
+			let y0 = selected_frames[i].position.y;
+			let scale0 = selected_frames[i].position.z;
+			let rx0 = selected_frames[i].rotation.x;
+			let ry0 = selected_frames[i].rotation.y;
+			let rz0 = selected_frames[i].rotation.z;
+			
+			selected_frames[i].position.set(x0 + x, y0 + y, scale0 + scale);
+			selected_frames[i].rotation.set(rx0 + rx, ry0 + ry, rz0 + rz);
+		}
+	}
+
+	async function stop_translate(event){
+		delete keysPressed[event.key];
+	}
 
 	async function onCtrlV(event){
 		if (event.ctrlKey && event.key == "v"){
@@ -119,6 +179,7 @@ function init() {
 			var height = jsonObject.height;
 			var src = jsonObject.src;
 			var clip_path = jsonObject.clip_path;
+			
 			group.add( new Element(0, 0, 0, 0, 0, 0, width, height, src, clip_path));
 		}
 	}
@@ -143,9 +204,20 @@ function init() {
 	// Example function to perform actions on number press
 	function performNumberPressActions(number) {
 		var element = group.children[number - 1];
-		element.element.children[0].style.backgroundColor = 'rgba(255, 0, 0, 0.3)';
-
-
+		var frame_bg_color = element.element.children[0].style.backgroundColor
+		console.log(selected_frames);
+		if (frame_bg_color == 'transparent'){
+			element.element.children[0].style.backgroundColor = 'rgba(255, 255, 0, 0.5)';
+			selected_frames.push(element);
+			
+		}
+		else{
+			element.element.children[0].style.backgroundColor = 'transparent';
+			let element_idx = selected_frames.indexOf(element);
+			console.log(element_idx);
+			selected_frames.splice(element_idx, 1);
+		}
+		
 	}
 
 }
@@ -161,7 +233,7 @@ function onWindowResize() {
 function animate() {
 
 	requestAnimationFrame( animate );
-	controls.update();
+	//controls.update();
 	renderer.render( scene, camera );
 
 }
