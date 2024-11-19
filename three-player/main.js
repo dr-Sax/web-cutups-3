@@ -57,7 +57,9 @@ function Element(x, y, z, rx, ry, rz, width, height, src, clip_path) {
 	object.rotation.x = rx
 	object.rotation.x = rz
 	object.src = src;	
-	
+	object.scale.set(0.2, 0.2, 0.2);
+	object.element.style.transform = 'scale(0.2)';
+
 	return object;
 
 }
