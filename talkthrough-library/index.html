@@ -1,0 +1,188 @@
+<html>
+
+<head>
+  <!-- begin jszip -->
+  <script src="js-includes/jszip.min.js"></script>
+  <script src="js-includes/jszip-utils.min.js"></script>
+
+  <!-- begin codemirror includes-->
+  <script src="js-includes/FileSaver.min.js"></script>
+  <script src="js-includes/codemirror/lib/codemirror.js"></script>
+
+  <script src="js-includes/codemirror/mode/javascript/javascript.js"></script>
+  <script src="js-includes/codemirror/mode/xml/xml.js"></script>
+  <script src="js-includes/codemirror/mode/css/css.js"></script>
+
+  <script src="js-includes/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+  <script src="js-includes/codemirror/addon/comment/comment.js"></script>
+
+  <script src="js-includes/codemirror/addon/fold/foldcode.js"></script>
+  <script src="js-includes/codemirror/addon/fold/foldgutter.js"></script>
+  <script src="js-includes/codemirror/addon/fold/brace-fold.js"></script>
+  <script src="js-includes/codemirror/addon/fold/xml-fold.js"></script>
+  <script src="js-includes/codemirror/addon/fold/comment-fold.js"></script>
+  <script src="js-includes/jshint.js"></script>
+  <script src="js-includes/csslint.js"></script>
+  <script src="js-includes/popcorn-complete.js"></script>
+
+  <script src="js-includes/codemirror/addon/lint/lint.js"></script>
+  <script src="js-includes/codemirror/addon/lint/javascript-lint.js"></script>
+  <script src="js-includes/codemirror/addon/lint/json-lint.js"></script>
+
+  <link rel="stylesheet" href="js-includes/codemirror/lib/codemirror.css">
+  <link rel="stylesheet" href="js-includes/codemirror/addon/fold/foldgutter.css">
+  <link rel="stylesheet" href="js-includes/codemirror/addon/lint/lint.css">
+  <!-- end codemirror includes-->
+
+  <!-- talkthrough css and code-->
+  <link rel="stylesheet" href="style.css">
+  <script src="cmexts.js"></script>
+
+  <title>talkthrough</title>
+</head>
+
+<body>
+
+  <h1>heading</h1>
+
+  <!-- buttons for tabs for the editor -->
+  <section id="buttons"></section>
+
+  <!-- live preview -->
+  <div id="live">
+    <section id="textareas"></section>
+    <iframe id="preview"></iframe>
+  </div>
+
+  <!-- audio goes here -->
+  <div id="audioContainer">
+    <audio id="audioclip" controls>
+      <!-- include ogg (vorbis or opus) for chrome/ffx -->
+      <source src="">
+      </source>
+      <!-- also include mp3, aac, or opus in a .caf container for safari -->
+
+      <!-- also include track with captions ... ok this doesn't work 'as is' with <audio>
+        we can make it a <video> and size it or use an additional library...
+      <track src="en_transcript.vtt" kind="captions" srclang="en" label="english_captions">
+      -->
+
+    </audio>
+  </div>
+
+
+  <!-- Chapters follow this format, li with data-start in hh:mm:ss of where they begin -->
+  <ul>
+    <h2>Chapters</h2>
+    <li class="chapter" data-start="00:00:00">Intro</li>
+    <li class="chapter" data-start="00:00:37">...</li>
+    <li class="chapter" data-start="00:01:13">wrapping up!</li>
+  </ul>
+
+  <script>
+    var savename = "tables";
+    var tt = talkthrough;
+
+    //files that can be included in the stack -- before and after are defined here.  mirrors are editor contents and files need to be in includes/{filename}.  Note: code will add '.txt' to filename request.
+
+    //this example will load in the order of 'includes/b4.txt', the content of mirror tab titled "Canvas", 'includes/aft.txt';
+    var templateStack = ["mirror:body"];
+
+    //files that should be included in the zip, include individually, relative paths
+    //directories will be automatically created
+    //examples: images, media, includes that aren't part of the above stack.
+    tt.saveFiles(["img/512px-Cinemagraph_de_fleur_de_pommier.gif"]);
+
+    //initiate probably tie these to a parent object at these point
+    var audpop;
+    //this loads the files found in the template stack  
+    var setup = async function () {
+      var result = await loadResources();
+      console.log(result);
+
+
+      //initiate the mirrors with some options. make some of these default!
+
+      //this will load "includes/canvas.js" into Canvas
+      var body = await tt.makeMirror("body", "body.html", { mode: "html" });
+      //saveAs will save the mirror to an external file with the path designated, creating folders as needed.      
+      var CSS = await tt.makeMirror("css", "style.css", { saveAs: "includes/style.css", mode: "css" }); //{ mode: "css" } not working
+      
+      var js = await tt.makeMirror("js", "script.js");
+      
+      /* this will replace a line in a mirror (in this case, the link tag in the body) with the contents of the array
+      this uses the same format as templateStack, taking strings, mirrors, and files */
+      body.addFilter({ line: 4, filters: ["<style>", "mirror:css", "</style>"] });
+      talkthrough.makeSaveButton();
+      
+      //this is a workaround for a strange bug that doubles content in the iframe
+      //maybe this should fire if there's an event for when the mirror is fully loaded and filled?
+
+      window.setTimeout(function () {
+        //make 'Arithmetic' visible
+        tt.visible('body');
+        //render the stack
+        tt.updatePreview();
+      }, 500);
+    }
+    audPop = document.getElementById("audioclip");
+
+
+    setup();
+
+
+    // add virtual mouse at the bottom left corner
+    // stays there until it is removed when editing happens
+    talkthrough.addMouse();
+
+    //initiate popcorn object
+    var aud = Popcorn("audio");
+    var chapters = document.querySelectorAll('.chapter');
+    for (var i = 0; i < chapters.length; i++) {
+      chapters[i].addEventListener('click', function (event) {
+        aud.play(Popcorn.util.toSeconds(event.target.dataset.start));
+      });
+    }
+
+    ///////////POPCORN timing functions below
+
+
+    //var arith = 'var ruleSet = getRuleSet(\'rulesForAddition\');\nvar automaton = makeAutomaton(ruleSet);\nautomaton.makeTape(7,3); // These two numbers are the input parameters. \nvar display = makeDisplay(automaton,30,0,20,4);\n	display.step(6000); // Decrease this number to speed up the display.\n\n';
+    //var buffer = CodeMirror.Doc(arith, 'javascript');
+
+    var skipping1stPlayAndWorkaroundForPlaybackAfterChange = 0;
+    /*
+    audPop.addEventListener("play", function (e) {
+
+      if (skipping1stPlayAndWorkaroundForPlaybackAfterChange == 0) {
+        skipping1stPlayAndWorkaroundForPlaybackAfterChange = 1;
+      } else {
+        skipping1stPlayAndWorkaroundForPlaybackAfterChange = 2;
+        //alert("play fired!");
+        //Arithmetic.swapDoc(buffer);
+        //alert(Arithmetic.getTextArea().innerHTML);
+        Arithmetic.fillField('arithmetic.js');
+        Arithmetic.refresh();
+        //alert(Arithmetic.getTextArea());
+        //hidePreview();
+      }
+    }, false);
+    */
+
+
+
+    /*
+    //uncomment the command in Display that 'runs' the code with a replace (this uses pattern, next function has same effect but based on line)
+    aud.cue(2, function(){
+        Display.setValue(Display.getValue().replace("//Automaton", "Automaton"));
+    });
+    */
+
+    //uncomment the command in Display with an 'uncomment' command
+
+
+
+   
+  </script>
+
+</body>

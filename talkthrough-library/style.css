@@ -1,0 +1,501 @@
+/* apply a natural box layout model to all elements, but allowing components to change */
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+
+body {
+  background: #dadada;
+  font-family: "Arial", Gadget, sans-serif;
+}
+
+.audiocontainer {
+  clear: both;
+
+}
+
+audio {
+  padding: 20px 0 20px 0;
+  width: 50%;
+}
+
+button {
+  cursor: pointer;
+  font-size: 24pt;
+  border-radius: 5px 5px 0 0;
+}
+
+iframe {
+  width: 45vw;
+  height: 70vh;
+  background: white;
+  border: none;
+  margin:0;
+}
+
+.CodeMirror {
+  width: 45vw;
+  height: 70vh;
+  background: #e9e9e9;
+}
+
+.CodeMirror {
+  font-size: 1.2em;
+}
+
+.CodeMirror-foldgutter-open,
+.CodeMirror-foldgutter-folded {
+  color: black;
+}
+
+#textareas {
+  display: inline-block;
+  border-style: solid;
+  border-width: 2px;
+  border-bottom: 2px solid #ddd;
+  border-right: none;
+  border-top: none;
+  margin:0;
+}
+
+button {
+  background-color: white;
+}
+
+.active {
+  background-color: papayawhip;
+}
+
+.marked {
+  background-color: papayawhip;
+  color: black;
+}
+
+.unmarked {
+  background-color: DarkGrey;
+
+}
+
+.buttonGroup {
+  display: inline-block;
+  font-size: 24pt;
+  margin: 0 15px;
+  box-sizing: border-box;
+  background: rgba(0,0,0,0.15);
+  padding: 7px 10px 0 10px;
+  border-radius: 7px 7px 0 0;
+}
+
+#index { display: inline-block;}
+
+.bottom {
+  padding: 15px 50px;
+}
+
+.outer {display: none;}
+
+.chapter {
+  cursor: pointer;
+}
+
+.bottom p { max-width: 70%;}
+
+.chapter:hover {
+  background: gold;
+  cursor: pointer;
+}
+
+button.inactive { opacity: 0.8}
+
+#but_save {
+  margin-left: 20px;
+}
+
+.highlight {
+  background-color: yellow;
+}
+
+.unhighlight {
+  background-color: transparent;
+}
+
+#mouse {
+  z-index: 1000;
+  -webkit-transition: top 1s, left 1s;
+  /* Safari */
+  transition: top 1s, left 1s;
+}
+
+
+#pointingAtTwoVariables {
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  -webkit-animation-name: twonumbers;
+  /* Chrome, Safari, Opera */
+  -webkit-animation-duration: 2s;
+  /* Chrome, Safari, Opera */
+  animation-name: twonumbers;
+  animation-duration: 2s;
+  animation-fill-mode: both;
+  z-index: 1000;
+}
+
+/* Standard syntax */
+@keyframes twonumbers {
+  0% {
+    left: 300px;
+    top: 300px;
+  }
+
+  25% {
+    left: 195px;
+    top: 125px;
+  }
+
+  75% {
+    left: 210px;
+    top: 125px;
+  }
+
+  100% {
+    left: 1220px;
+    top: 480px;
+  }
+}
+
+/* Chrome, Safari, Opera */
+@-webkit-keyframes twonumbers {
+  0% {
+    left: 300px;
+    top: 300px;
+  }
+
+  25% {
+    left: 195px;
+    top: 125px;
+  }
+
+  75% {
+    left: 210px;
+    top: 125px;
+  }
+
+  100% {
+    left: 1220px;
+    top: 480px;
+  }
+}
+
+#pointingAt {
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  -webkit-animation-name: onepoint;
+  /* Chrome, Safari, Opera */
+  -webkit-animation-duration: 2s;
+  /* Chrome, Safari, Opera */
+  animation-name: onepoint;
+  animation-duration: 2s;
+  animation-fill-mode: both;
+  z-index: 1000;
+}
+
+
+/* Standard syntax */
+@keyframes onepoint {
+  0% {
+    left: 300px;
+    top: 300px;
+  }
+
+  50% {
+    left: 195px;
+    top: 125px;
+  }
+
+  100% {
+    left: 1220px;
+    top: 480px;
+  }
+}
+
+/* Chrome, Safari, Opera */
+@-webkit-keyframes onepoint {
+  0% {
+    left: 300px;
+    top: 300px;
+  }
+
+  50% {
+    left: 195px;
+    top: 125px;
+  }
+
+  100% {
+    left: 1220px;
+    top: 480px;
+  }
+}
+
+#mouseanimation1 {
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  -webkit-animation-name: beforeAfterLeft;
+  /* Chrome, Safari, Opera */
+  -webkit-animation-duration: 4s;
+  /* Chrome, Safari, Opera */
+  animation-name: beforeAfterLeft;
+  animation-duration: 4s;
+  animation-fill-mode: both;
+  z-index: 1000;
+}
+
+
+
+
+/* Standard syntax */
+@keyframes beforeAfterLeft {
+  0% {
+    left: 500px;
+    top: 500px;
+  }
+
+  25% {
+    left: 250px;
+    top: 190px;
+  }
+
+  50% {
+    left: 330px;
+    top: 190px;
+  }
+
+  75% {
+    left: 400px;
+    top: 190px;
+  }
+
+  100% {
+    left: 1220px;
+    top: 480px;
+  }
+}
+
+/* Chrome, Safari, Opera */
+@-webkit-keyframes beforeAfterLeft {
+  0% {
+    left: 500px;
+    top: 500px;
+  }
+
+  25% {
+    left: 250px;
+    top: 190px;
+  }
+
+  50% {
+    left: 330px;
+    top: 190px;
+  }
+
+  75% {
+    left: 400px;
+    top: 190px;
+  }
+
+  100% {
+    left: 1220px;
+    top: 480px;
+  }
+
+}
+
+#mouseanimation2 {
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  -webkit-animation-name: someotherexample;
+  /* Chrome, Safari, Opera */
+  -webkit-animation-duration: 6s;
+  /* Chrome, Safari, Opera */
+  animation-name: someotherexample;
+  animation-duration: 6s;
+  z-index: 1000;
+}
+
+/* Standard syntax */
+@keyframes someotherexample {
+  0% {
+    left: 140px;
+    top: 100px;
+  }
+
+  25% {
+    left: 340px;
+    top: 125px;
+  }
+
+  50% {
+    left: 140;
+    top: 150px;
+  }
+
+  75% {
+    left: 340px;
+    top: 175px;
+  }
+
+  100% {
+    left: 140px;
+    top: 200px;
+  }
+}
+
+/* Chrome, Safari, Opera */
+@-webkit-keyframes someotherexample {
+  0% {
+    left: 140px;
+    top: 100px;
+  }
+
+  25% {
+    left: 340px;
+    top: 125px;
+  }
+
+  50% {
+    left: 140;
+    top: 150px;
+  }
+
+  75% {
+    left: 340px;
+    top: 175px;
+  }
+
+  100% {
+    left: 140px;
+    top: 200px;
+  }
+}
+
+
+#mouseanimation3 {
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  -webkit-animation-name: circlepreviewwindow;
+  /* Chrome, Safari, Opera */
+  -webkit-animation-duration: 4s;
+  /* Chrome, Safari, Opera */
+  animation-name: circlepreviewwindow;
+  animation-duration: 4s;
+  z-index: 1000;
+}
+
+
+
+/* Standard syntax */
+@keyframes circlepreviewwindow {
+  0% {
+    left: 1220px;
+    top: 480px;
+  }
+
+  16% {
+    left: 700px;
+    top: 125px;
+  }
+
+  32% {
+    left: 1180px;
+    top: 140px;
+  }
+
+  64% {
+    left: 1170px;
+    top: 350px;
+  }
+
+  80% {
+    left: 700px;
+    top: 340px;
+  }
+
+  100% {
+    left: 730px;
+    top: 130px;
+  }
+}
+
+/* Chrome, Safari, Opera */
+@-webkit-keyframes circlepreviewwindow {
+  0% {
+    left: 1220px;
+    top: 480px;
+  }
+
+  16% {
+    left: 700px;
+    top: 125px;
+  }
+
+  32% {
+    left: 1180px;
+    top: 140px;
+  }
+
+  64% {
+    left: 1170px;
+    top: 350px;
+  }
+
+  80% {
+    left: 700px;
+    top: 340px;
+  }
+
+  100% {
+    left: 730px;
+    top: 130px;
+  }
+}
+
+/*
+#mouseCircleAnimation {
+    position: absolute;
+    -webkit-animation: circularAnimation 4s linear infinite;
+            animation: circularAnimation 4s linear infinite; 
+    z-index: 1000;  
+  
+}*/
+
+
+
+@keyframes circularAnimation {
+  from {
+    transform: rotate(0deg) translateX(300px) rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg) translateX(300px) rotate(-360deg);
+  }
+}
+
+@-webkit-keyframes circularAnimation {
+  from {
+    -webkit-transform: rotate(0deg) translateX(300px) rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(360deg) translateX(300px) rotate(-360deg);
+  }
+}

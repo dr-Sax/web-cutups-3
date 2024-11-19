@@ -1,0 +1,15 @@
+   	#audioContainerArithmeticStart{
+ 	 	left: 30px;
+  		top: 570px;
+  		position: absolute;
+	}
+	
+	audio{
+		width: 950px;
+		}
+	
+	form{
+ 	 	left: 900px;
+  		top: 90px;
+  		position: absolute;	
+  	}

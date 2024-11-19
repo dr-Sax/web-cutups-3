@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+	<head><title>canvas fun</title>
+	<style>canvas { position: absolute; width: 100%; z-index: -1; top: 0; left: 0;}
+	body { background: #1c0a0c;}
+	video { width: 100px;}
+	</style>
+	</head>
+
+	<body>
+	<video src="https://archive.org/download/KagakuSentaiDynaman01/Kagaku%20Sentai%20Dynaman%2001.mp4"></video>
+	<div>hello world</div>
+		<canvas width="600" height="400">
+
+
+	</body>
+	<script>
+
+	document.querySelector("video").addEventListener("canplay",function(){

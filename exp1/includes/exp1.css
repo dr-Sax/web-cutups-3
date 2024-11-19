@@ -1,0 +1,19 @@
+body { 
+  background-color: black;  
+}
+
+table { 
+  border: 3px solid rgb(0,0,255); 
+}
+
+td { 
+  border: 3px solid #9900cc; 
+}
+
+img {
+ width: 30vw; 
+}
+
+.wide { 
+  width: 100%; 
+}

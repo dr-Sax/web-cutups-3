@@ -6,6 +6,9 @@ import {CSS3DRenderer} from "./CSS3DRenderer.js";
 let camera, scene, renderer;
 let controls;
 let selected_frames;
+let collage_save = {};
+
+var group
 
 //https://www.youtube.com/watch?v=KRm_GICiPIQ
 
@@ -57,8 +60,6 @@ function Element(x, y, z, rx, ry, rz, width, height, src, clip_path) {
 	object.rotation.x = rx
 	object.rotation.x = rz
 	object.src = src;	
-	object.scale.set(0.2, 0.2, 0.2);
-	object.element.style.transform = 'scale(0.2)';
 
 	return object;
 
@@ -80,7 +81,7 @@ function init() {
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	container.appendChild( renderer.domElement );
 
-	const group = new THREE.Group();
+	group = new THREE.Group();
 
 	document.addEventListener('paste', function(e) {
 		e.preventDefault(); // Prevent default copy behavior
@@ -148,6 +149,37 @@ function init() {
 		}
 		else if (keysPressed['s'] && keysPressed["ArrowLeft"]){
 			selected_frame_modifier(0, 0, -translate_scale, 0, 0, 0);
+		} 
+		
+		else if (keysPressed['p']){
+			
+			
+			for (var i = 0; i < group.children.length; i++){
+				collage_save[i]['pos-rot'] = {
+					"x": group.children[i].position.x,
+					"y": group.children[i].position.y,
+					"s": group.children[i].position.z,
+					"s": group.children[i].position.z,
+					"rx": group.children[i].rotation.x,
+					"ry": group.children[i].rotation.y,
+					"rz": group.children[i].rotation.y
+				}
+			}
+			const jsonString = JSON.stringify(collage_save, null, 2);
+
+            // Create a Blob
+            const blob = new Blob([jsonString], { type: 'application/json' });
+
+            // Create a download link
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'myData.json';
+            
+            // Trigger download
+            link.click();
+
+            // Clean up
+            URL.revokeObjectURL(link.href);
 		}
 		
 		
@@ -181,7 +213,7 @@ function init() {
 			var height = jsonObject.height;
 			var src = jsonObject.src;
 			var clip_path = jsonObject.clip_path;
-			
+			collage_save[group.children.length] = jsonObject
 			group.add( new Element(0, 0, 0, 0, 0, 0, width, height, src, clip_path));
 		}
 	}
