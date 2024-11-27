@@ -1,5 +1,3 @@
-
-
 var sketch = function(p5) {
   var n_gon_array = [];
   var new_shape = false;
@@ -97,7 +95,7 @@ var sketch = function(p5) {
         clip_path = clip_path + ')';
 
         
-        cut_json = `{"width": "${window_height}px", "height": "${window_height}px", "src": "${window_src}", "clip_path": "${clip_path}"}`;
+        cut_json = `{"0":{"0":{"width": "${window_height}px", "height": "${window_height}px", "src": "${window_src}", "clip_path": "${clip_path}", "pos-rot": {"x": 0, "y": 0, "z": 0, "rx": 0, "ry": 0, "rz": 0, "s":0.1}}}}`;
         navigator.clipboard.writeText(cut_json);
       }
     }
