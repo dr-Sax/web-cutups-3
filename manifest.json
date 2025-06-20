@@ -9,12 +9,18 @@
   "action": {
         "default_title": "Chrome Addon v3 Starter"
     },
-  "permissions": ["activeTab", "scripting", "tabs", "webNavigation"],
+  "permissions": ["activeTab", "scripting", "tabs", "webNavigation", "clipboardWrite", "clipboardRead"],
   "host_permissions": [
     "*://*/*"
   ],
   "background": {
     "service_worker": "background.js"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["assembler/*", "libraries/*", "*.js", "*.html", "*.css"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 
 }

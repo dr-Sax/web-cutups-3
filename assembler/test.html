@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Three.js YouTube CSS3D Debug</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        #container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        #youtubeContainer {
+            width: 640px;
+            height: 360px;
+            background: rgba(0,0,0,0.1);
+            position: relative;
+            clip-path: polygon(
+                50% 0%,    /* top point */
+                55% 40%,   /* top right inner */
+                100% 40%,  /* top right outer */
+                65% 60%,   /* right inner */
+                80% 100%,  /* bottom right outer */
+                50% 75%,   /* bottom inner */
+                20% 100%,  /* bottom left outer */
+                35% 60%,   /* left inner */
+                0% 40%,    /* top left outer */
+                45% 40%    /* top left inner */
+            );
+        }
+        #youtubeContainer iframe {
+            clip-path: inherit;
+            width: 100%;
+            height: 100%;
+        }
+        #pauseOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            clip-path: inherit;
+            z-index: 1000;
+        }
+        #pauseOverlay::after {
+            content: "▶";
+            color: white;
+            font-size: 48px;
+        }
+        /* Debug overlay */
+        #debug {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px;
+            font-family: monospace;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <div id="debug">Loading...</div>
+
+    <!-- Import Three.js directly first -->
+    <script async src="https://unpkg.com/es-module-shims"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.159.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.159.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
+
+        let camera, scene, renderer;
+        let cssScene, cssRenderer;
+        let player;
+        let youtubeObject;
+        const debug = document.getElementById('debug');
+
+        function log(message) {
+            console.log(message);
+            debug.innerHTML += `<br>${message}`;
+        }
+
+        log('Script started');
+
+        // Load YouTube API
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        log('YouTube API script added');
+
+        // Make onYouTubeIframeAPIReady globally accessible
+        window.onYouTubeIframeAPIReady = function() {
+            log('YouTube API Ready');
+            
+            const container = document.createElement('div');
+            container.id = 'youtubeContainer';
+            
+            // Create pause overlay
+            const pauseOverlay = document.createElement('div');
+            pauseOverlay.id = 'pauseOverlay';
+            container.appendChild(pauseOverlay);
+            
+            // Add click handler to the overlay
+            pauseOverlay.addEventListener('click', () => {
+                if (player) {
+                    player.playVideo();
+                }
+            });
+            
+            let div = document.body.appendChild(container);
+            
+            log('Creating YouTube player');
+            player = new YT.Player(div, {
+                height: '1000',
+                width: '500',
+                videoId: 'jKc2_QIO0Yo', // Using a known working video ID
+                playerVars: {
+                    'autoplay': 1,
+                    'controls': 1,
+                    'loop': 1,
+                    'playlist': 'jKc2_QIO0Yo,jKc2_QIO0Yo', // Same video twice to force loop without recommendations
+                    'playsinline': 1,
+                    'enablejsapi': 1,
+                    'rel': 0,
+                    'modestbranding': 1,
+                    'showinfo': 0,
+                    'iv_load_policy': 3,
+                    'fs': 0,                 // Disable fullscreen button
+                    'origin': window.location.origin,
+                    'widget_referrer': window.location.origin
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange,
+                    'onError': onPlayerError
+                }
+            });
+        };
+
+        function onPlayerReady(event) {
+            log('Player ready');
+            event.target.playVideo();
+            
+            // Create CSS3D Object with the player's iframe
+            const iframe = player.getIframe();
+            log(`Player iframe dimensions: ${iframe.width}x${iframe.height}`);
+            
+            youtubeObject = new CSS3DObject(iframe);
+            youtubeObject.position.set(0, 0, 0);
+            cssScene.add(youtubeObject);
+            log('Added to CSS3D scene');
+        }
+
+        function onPlayerStateChange(event) {
+            log(`Player state changed: ${event.data}`);
+            const overlay = document.getElementById('pauseOverlay');
+            
+            switch(event.data) {
+                case YT.PlayerState.ENDED:
+                    event.target.playVideo();
+                    overlay.style.display = 'none';
+                    break;
+                case YT.PlayerState.PAUSED:
+                    overlay.style.display = 'flex';
+                    break;
+                case YT.PlayerState.PLAYING:
+                    overlay.style.display = 'none';
+                    break;
+            }
+        }
+
+        function onPlayerError(event) {
+            log(`Player error: ${event.data}`);
+        }
+
+        init();
+        animate();
+
+        function init() {
+            log('Initializing scene');
+            const container = document.getElementById('container');
+
+            // CSS Scene (for YouTube player)
+            cssScene = new THREE.Scene();
+            log('CSS Scene created');
+
+            // Shared camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 5000);
+            camera.position.set(0, 0, 1000);
+            log('Camera set up');
+
+            // CSS 3D Renderer
+            cssRenderer = new CSS3DRenderer();
+            cssRenderer.setSize(window.innerWidth, window.innerHeight);
+            cssRenderer.domElement.style.position = 'absolute';
+            cssRenderer.domElement.style.top = '0';
+            container.appendChild(cssRenderer.domElement);
+            log('CSS Renderer added');
+
+            // WebGL Scene and Renderer
+            scene = new THREE.Scene();
+            renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.domElement.style.position = 'absolute';
+            renderer.domElement.style.top = '0';
+            renderer.domElement.style.pointerEvents = 'none';
+            container.appendChild(renderer.domElement);
+            log('WebGL Renderer added');
+
+            // Add grid helper
+            const helper = new THREE.GridHelper(2000, 20);
+            scene.add(helper);
+            log('Grid helper added');
+
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            cssRenderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (youtubeObject) {
+                youtubeObject.rotation.y += 0.01;
+            }
+
+            renderer.render(scene, camera);
+            cssRenderer.render(cssScene, camera);
+        }
+
+        // Add keyboard controls
+        document.addEventListener('keydown', (event) => {
+            if (!youtubeObject) return;
+
+            const speed = 50;
+            switch(event.key) {
+                case 'ArrowUp':
+                    youtubeObject.position.y += speed;
+                    log(`Moved up: ${youtubeObject.position.y}`);
+                    break;
+                case 'ArrowDown':
+                    youtubeObject.position.y -= speed;
+                    log(`Moved down: ${youtubeObject.position.y}`);
+                    break;
+                case 'ArrowLeft':
+                    youtubeObject.position.x -= speed;
+                    log(`Moved left: ${youtubeObject.position.x}`);
+                    break;
+                case 'ArrowRight':
+                    youtubeObject.position.x += speed;
+                    log(`Moved right: ${youtubeObject.position.x}`);
+                    break;
+                case 'q':
+                    youtubeObject.position.z += speed;
+                    log(`Moved forward: ${youtubeObject.position.z}`);
+                    break;
+                case 'e':
+                    youtubeObject.position.z -= speed;
+                    log(`Moved back: ${youtubeObject.position.z}`);
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>

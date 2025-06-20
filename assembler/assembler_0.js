@@ -1,7 +1,6 @@
 import * as THREE from '../libraries/three.js';
 import {CSS3DObject} from "../libraries/CSS3DRenderer.js";
 import {CSS3DRenderer} from "../libraries/CSS3DRenderer.js";
-import { initFileRegistry } from './fileRegistry.js';
 //web-ext run --target=chromium       
 
 let camera, scene, renderer;
@@ -11,107 +10,53 @@ let design_history = {};
 let group;
 let design_history_iter = 0;
 
-// Modify the Element function to handle local file references
 function Element(x, y, z, rx, ry, rz, scale, width, height, src, clip_path) {
-    const div = document.createElement('div');
-    
-    const overlayDiv = document.createElement('div');
-    overlayDiv.style.position = 'absolute';
-    overlayDiv.style.top = '0';
-    overlayDiv.style.left = '0';
-    overlayDiv.style.width = '100%';
-    overlayDiv.style.height = '100%';
-    overlayDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.0)';
-    overlayDiv.style.backdropFilter = 'blur(0px)';
-    overlayDiv.style.pointerEvents = 'none';
-    overlayDiv.style.zIndex = '2';
-    overlayDiv.style.transition = 'background-color 0.3s';
-    overlayDiv.style.clipPath = clip_path;
-    div.appendChild(overlayDiv);
-    
-    // Check if the src is a local file reference
-    if (src.startsWith('localfile://')) {
-        const fileId = parseInt(src.replace('localfile://', ''), 10);
-        const fileInfo = window.fileRegistry.getFile(fileId);
-        
-        if (fileInfo) {
-            if (fileInfo.type.startsWith('image/')) {
-                const img = document.createElement('img');
-                img.style.width = width;
-                img.style.height = height;
-                img.style.border = '0px';
-                img.style.clipPath = clip_path;
-                img.src = fileInfo.dataUrl;
-                div.appendChild(img);
-            } else if (fileInfo.type.startsWith('video/')) {
-                const video = document.createElement('video');
-                video.style.width = width;
-                video.style.height = height;
-                video.style.border = '0px';
-                video.style.clipPath = clip_path;
-                video.src = fileInfo.dataUrl;
-                video.controls = true;
-                video.autoplay = false;
-                video.loop = true;
-                div.appendChild(video);
-            } else if (fileInfo.type === 'text/html') {
-                const iframe = document.createElement('iframe');
-                iframe.style.width = width;
-                iframe.style.height = height;
-                iframe.style.border = '0px';
-                iframe.style.clipPath = clip_path;
-                iframe.src = fileInfo.dataUrl;
-                iframe.allow = 'autoplay; encrypted-media';
-                iframe.allowFullscreen = true;
-                div.appendChild(iframe);
-            } else {
-                console.error(`Unsupported file type: ${fileInfo.type}`);
-                const errorText = document.createElement('div');
-                errorText.textContent = `Unsupported file type: ${fileInfo.type}`;
-                errorText.style.color = 'red';
-                div.appendChild(errorText);
-            }
-        } else {
-            console.error(`File with ID ${fileId} not found in registry`);
-            const errorText = document.createElement('div');
-            errorText.textContent = `File with ID ${fileId} not found`;
-            errorText.style.color = 'red';
-            div.appendChild(errorText);
-        }
-    } else {
-        // Handle regular URLs (YouTube, etc.) as before
-        const iframe = document.createElement('iframe');
-        iframe.style.width = width;
-        iframe.style.height = height;
-        iframe.style.border = '2px';
-        iframe.style.backdropFilter = "";
-        iframe.style.clipPath = clip_path;
-        iframe.src = src;
-        iframe.allow = 'autoplay; encrypted-media';
-        iframe.allowFullscreen = true;
-        div.appendChild(iframe);
-    }
-    
-    const object = new CSS3DObject(div);
-    object.position.set(x, y, z);
-    object.rotation.y = ry;
-    object.rotation.x = rx;
-    object.rotation.z = rz;
-    object.src = src;
-    object.scale.set(scale, scale, scale);
-    
-    return object;
-}
 
-// Add 'initFileRegistry()' to your init() function
-// Call this after scene and renderer setup
+	const div = document.createElement( 'div' );
+	//div.style.width = width;
+	//div.style.height = height;
+
+	const overlayDiv = document.createElement('div');
+	overlayDiv.style.position = 'absolute';
+	overlayDiv.style.top = '0';
+	overlayDiv.style.left = '0';
+	overlayDiv.style.width = '100%';
+	overlayDiv.style.height = '100%';
+	overlayDiv.style.backgroundColor = 'transparent';
+	overlayDiv.style.pointerEvents = 'none';
+	overlayDiv.style.zIndex = '1';
+	overlayDiv.style.transition = 'background-color 0.3s';
+	overlayDiv.style.clipPath = clip_path;
+	div.appendChild(overlayDiv);
+
+	const iframe = document.createElement( 'iframe' );
+	iframe.style.width = width;
+	iframe.style.height = height;
+	iframe.style.border = '0px';
+	iframe.style.clipPath = clip_path;
+	iframe.src = src;
+	iframe.allow = 'autoplay; encrypted-media';
+	iframe.allowFullscreen = 'true';
+	
+	div.appendChild( iframe );	
+	
+
+	const object = new CSS3DObject( div );
+	object.position.set( x, y, z );
+	object.rotation.y = ry;
+	object.rotation.x = rx
+	object.rotation.x = rz
+	object.src = src;
+	object.scale.set(scale, scale, scale);
+
+	return object;
+
+}
 
 init();
 animate();
 
 function init() {
-
-    initFileRegistry();
 
 	const container = document.getElementById( 'container' );
 	camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
@@ -139,7 +84,6 @@ function init() {
 	window.addEventListener('keydown', translate);
 	window.addEventListener('keyup', stop_translate);
 
-	initFileRegistry();
 	// Block iframe events when dragging camera
 
 	const blocker = document.getElementById( 'blocker' );
@@ -350,6 +294,7 @@ function init() {
 
 				// transpose frames to match current paste:
 				// this is needed for pastes occuring after the initial (when frame = 0)
+				console.log(Object.keys(key))
 				if (Object.keys(key)[0] != '0' | frame != 0){
 					let transposed = {};
 					Object.keys(jsonObject[key]).forEach(t => {
@@ -379,41 +324,18 @@ function init() {
         const inputs = midiAccess.inputs.values();
         
         for (const input of inputs) {
+            console.log(`Input port: ${input.name}`);
             input.onmidimessage = onMIDIMessage;
         }
 
         midiAccess.onstatechange = (event) => {
+            console.log(`MIDI port ${event.port.name} ${event.port.state}`);
         };
     }
 
 	function onMIDIFailure(error) {
+		console.error("Failed to get MIDI access:", error);
 	}
-
-    function createGridPattern() {
-        const canvas = document.createElement('canvas');
-        canvas.width = 20; // Small canvas for a repeating pattern
-        canvas.height = 20;
-        const ctx = canvas.getContext('2d');
-        
-        // Clear canvas with transparent background
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Draw horizontal line
-        ctx.beginPath();
-        ctx.moveTo(0, 10);
-        ctx.lineTo(20, 10);
-        ctx.strokeStyle = 'rgba(255, 255, 0, 0.5)'; // Semi-transparent yellow
-        ctx.lineWidth = 1;
-        ctx.stroke();
-        
-        // Draw vertical line
-        ctx.beginPath();
-        ctx.moveTo(10, 0);
-        ctx.lineTo(10, 20);
-        ctx.stroke();
-        
-        return canvas.toDataURL('image/png');
-      }
 
     function onMIDIMessage(message) {
 		const [command, number, value] = message.data;
@@ -427,8 +349,8 @@ function init() {
 				if (currentDialValue !== null) {
 					const prevElement = group.children[currentDialValue];
 					// Only reset to transparent if it's not selected (yellow)
-					if (prevElement.element.children[0].style.backdropFilter === "blur(25px)") {
-						prevElement.element.children[0].style.backdropFilter = 'blur(0px)';
+					if (prevElement.element.children[0].style.backgroundColor === 'rgba(255, 0, 0, 0.5)') {
+						prevElement.element.children[0].style.backgroundColor = 'transparent';
 					}
 				}
 	
@@ -439,10 +361,11 @@ function init() {
 				// Show red highlight on current dial position
 				const currentElement = group.children[currentDialValue];
 				// Only set to red if it's not already selected (yellow)
-				if (currentElement.element.children[0].style.backdropFilter === 'blur(0px)') {
-					currentElement.element.children[0].style.backdropFilter = "blur(25px)";
+				if (currentElement.element.children[0].style.backgroundColor === 'transparent') {
+					currentElement.element.children[0].style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
 				}
 				
+				console.log(`Dial value ${value} mapped to element index: ${currentDialValue}`);
 			}
 		}
 		
@@ -450,41 +373,12 @@ function init() {
 		if (command === 153 && number === 36) {
 			if (value > 0) { // Note On with velocity > 0
 				isDrumPadPressed = true;
+				console.log('drum pressed, selecting element:', currentDialValue);
 				toggleElementSelection(currentDialValue);
 			} else { // Note Off
 				isDrumPadPressed = false;
 			}
 		}
-
-        // handle rgb a from commands here to update selected_frames elements
-        if (command === 176 && (number === 74 || number === 75 || number === 76 || number === 77)){
-            for (let i = 0; i < selected_frames.length; i++){
-                let bgColor = selected_frames[i].element.children[0].style.backgroundColor;
-                let rgba = bgColor.substring(5, bgColor.length - 1).split(", ");
-                let r = parseInt(rgba[0]);
-                let g = parseInt(rgba[1]);
-                let b = parseInt(rgba[2]);
-                let a = parseFloat(rgba[3]);
-                if (number == 74){
-                    r = parseInt(value / 127 * 255);
-                }
-                if (number == 75){
-                    g = parseInt(value / 127 * 255);
-                }
-                if (number == 76){
-                    b = parseInt(value / 127 * 255);
-                }
-                if (number == 77){
-
-                    a = Math.min(value / 127 * 1.0, 0.99);
-                }
-
-                let rgba_new = `rgba(${r}, ${g}, ${b}, ${a})`;
-                selected_frames[i].element.children[0].style.backgroundColor = rgba_new;
-            }
-
-
-        }
 	}
 	
 	function toggleElementSelection(index) {
@@ -493,19 +387,17 @@ function init() {
 			return;
 		}
 		
-        const gridPattern = createGridPattern();
 		const element = group.children[index];
-		const frameBgFilter = element.element.children[0].style.backdropFilter;
-        const frameBgImage = element.element.children[0].style.backgroundImage;
+		const frameBgColor = element.element.children[0].style.backgroundColor;
 		
-		if ((frameBgFilter === "" || frameBgFilter ===  "blur(25px)") && frameBgImage === 'none') {
+		if (frameBgColor === 'transparent' || frameBgColor === 'rgba(255, 0, 0, 0.5)') {
 			// Select the element - change from either transparent or red to yellow
-			element.element.children[0].style.backgroundImage = `url(${gridPattern})`;
+			element.element.children[0].style.backgroundColor = 'rgba(255, 255, 0, 0.5)';
 			selected_frames.push(element);
 			console.log(`Selected element ${index}`);
 		} else {
 			// Deselect the element - change from yellow to red (since it's still under the dial)
-			element.element.children[0].style.backgroundImage = 'none';
+			element.element.children[0].style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
 			const elementIdx = selected_frames.indexOf(element);
 			if (elementIdx !== -1) {
 				selected_frames.splice(elementIdx, 1);
@@ -513,6 +405,7 @@ function init() {
 			}
 		}
 		
+		console.log(`Total selected frames: ${selected_frames.length}`);
 	}
 
 	document.addEventListener('keydown', handleNumberPress);
@@ -521,6 +414,7 @@ function init() {
 	function handleNumberPress(event) {
 	// Check if the pressed key is a number
 	if (isNumber(event.key)) {
+		console.log(`You pressed the number: ${event.key}`);
 		// Add your custom logic here
 		performNumberPressActions(event.key);
 	}
@@ -535,6 +429,7 @@ function init() {
 	function performNumberPressActions(number) {
 		var element = group.children[number];
 		var frame_bg_color = element.element.children[0].style.backgroundColor
+		console.log(selected_frames);
 		if (frame_bg_color == 'transparent'){
 			element.element.children[0].style.backgroundColor = 'rgba(255, 255, 0, 0.5)';
 			selected_frames.push(element);

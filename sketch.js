@@ -94,7 +94,9 @@ var sketch = function(p5) {
         }
         clip_path = clip_path + ')';
 
-        
+        if (!window_src.includes("www.youtube.com")){
+          window_src = "localfile://"
+        }
         cut_json = `{"0":{"0":{"width": "${window_height}px", "height": "${window_height}px", "src": "${window_src}", "clip_path": "${clip_path}", "pos-rot": {"x": 0, "y": 0, "z": 0, "rx": 0, "ry": 0, "rz": 0, "s":0.1}}}}`;
         navigator.clipboard.writeText(cut_json);
       }
